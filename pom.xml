@@ -916,28 +916,19 @@
 
     <repositories>
         <repository>
-            <id>central</id>
-            <name>Central Repository</name>
-            <url>http://repo.maven.apache.org/maven2</url>
-            <layout>default</layout>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
+            <id>kylin</id>
+            <url>http://repository.kyligence.io:8081/repository/maven-public/</url>
         </repository>
 
         <repository>
-            <id>conjars</id>
-            <url>http://conjars.org/repo/</url>
+            <id>aliyun</id>
+            <url>http://maven.aliyun.com/nexus/content/groups/public</url>
+            <layout>default</layout>
         </repository>
 
         <repository>
             <id>cloudera</id>
             <url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
-        </repository>
-
-        <repository>
-            <id>shibboleth</id>
-            <url>https://build.shibboleth.net/nexus/content/repositories/releases/</url>
         </repository>
 
         <repository>
@@ -952,6 +943,7 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
+
     </repositories>
 
     <build>
