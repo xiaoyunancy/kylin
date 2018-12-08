@@ -60,7 +60,8 @@ public class BulkLoadJob extends AbstractHadoopJob {
         int exitCode = -1;
         int retryCount = 10;
         while (exitCode != 0 && retryCount >= 1) {
-            exitCode = shell.run(new String[] { "-chmod", "-R", "777", input });
+//            exitCode = shell.run(new String[] { "-chmod", "-R", "777", input });
+            exitCode = 0;
             retryCount--;
             Thread.sleep(5000);
         }
