@@ -18,13 +18,18 @@
 package org.apache.kylin.storage.hbase.steps;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DateFormatUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.kylin.common.KylinConfig;
 import org.apache.kylin.common.util.HadoopUtil;
 import org.apache.kylin.engine.mr.JobBuilderSupport;
 import org.apache.kylin.job.engine.JobEngineConfig;
@@ -62,7 +67,9 @@ public class HDFSPathGarbageCollectionStep extends AbstractExecutable {
             dropHdfsPathOnCluster(toDeletePaths, HadoopUtil.getWorkingFileSystem());
 
             if (StringUtils.isNotEmpty(context.getConfig().getHBaseClusterFs())) {
-                dropHdfsPathOnCluster(toDeletePaths, FileSystem.get(HBaseConnection.getCurrentHBaseConfiguration()));
+//                dropHdfsPathOnCluster(toDeletePaths, FileSystem.get(HBaseConnection.getCurrentHBaseConfiguration()));
+                // record hbase hdfs garbage ,not delete
+                recordHdfsGarbage(toDeletePaths,FileSystem.get(HBaseConnection.getCurrentHBaseConfiguration()));
             }
         } catch (IOException e) {
             logger.error("job:" + getId() + " execute finished with exception", e);
@@ -71,6 +78,30 @@ public class HDFSPathGarbageCollectionStep extends AbstractExecutable {
         }
 
         return new ExecuteResult(ExecuteResult.State.SUCCEED, output.toString());
+    }
+
+    private void recordHdfsGarbage(List<String> oldHdfsPaths, FileSystem fileSystem) throws IOException{
+
+        if (oldHdfsPaths == null || oldHdfsPaths.size() == 0) {
+            return;
+        }
+
+        StringBuilder records = new StringBuilder();
+
+        for (String path : oldHdfsPaths) {
+            records.append(path).append("\n");
+        }
+        Path toDayPath = new Path(fileSystem.getUri() + KylinConfig.getInstanceFromEnv().getHbaseGarbageDir() + "/"
+                + DateFormatUtils.format(new Date(), "yyyy-MM-dd"));
+
+        if(fileSystem.createNewFile(toDayPath)){
+            logger.info(String.format("mkdir garbage : %s",toDayPath.toString()));
+        }
+
+        OutputStream outputStream = fileSystem.append(toDayPath);
+        outputStream.write(records.toString().getBytes());
+        outputStream.close();
+
     }
 
     private void dropHdfsPathOnCluster(List<String> oldHdfsPaths, FileSystem fileSystem) throws IOException {

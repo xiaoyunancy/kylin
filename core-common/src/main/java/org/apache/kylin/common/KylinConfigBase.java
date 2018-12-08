@@ -1636,4 +1636,8 @@ abstract public class KylinConfigBase implements Serializable {
         return getOptional("kylin.tool.auto-migrate-cube.dest-config", "");
     }
 
+    public String getHbaseGarbageDir(){
+        return getOptional("kylin.storage.hbase.garbage-record.dir","/user/kylin/kylin_metadata/garbage");
+    }
+
 }
