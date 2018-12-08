@@ -1,3 +1,37 @@
+## 说明
+
+###背景
+
+**此分支是为了让kylin支持多套集群环境****
+
+1. 计算集群环境：kerberos认证，cdh安装
+2. 存储hbase on hdfs：无kerberos认证，ambari安装
+
+### 问题
+
+kylin缺陷（主要集中在kylin-storage-hbase）
+
+1. 代码设计没有考虑到计算集群和hbase集群不同的认证环境，UGI会直接出错
+2. cube构建过程中，有本地MR/spark任务，也有提交到YARN集群的任务，在kerberos环境下，user并不是同一个。不同任务类型写到目标hbase hdfs时会出现权限问题
+3. bulkload操作，理想化认为当前操作用户具有最高权限
+4. cube merge后，清理hdfs废弃文件，存在安全问题
+
+### 改动点
+
+1. 计算集群和hbase单独集群的配置分离，**hbase的connection和hdfs Filesystem动态加载**，可以分别满足计算集群kbs认证和hbase无认证需要
+2. 在createHtableJob后加上后置操作，保证cube构建过程中，生成hfile的yarn 任务具有写入权限
+3. 简化Bulkload操作，移除不合理的chmod
+4. 重构hdfs carbage回收，改为记录下garbage列表
+
+### 可能存在的隐患
+
+1. 本次改动点绝大多数在kylin-storage-hbase，相当于定制化适配Hbase，理论上无隐患
+2. 后续kylin版本升级，是将更多的本地任务转到yarn上，有些操作的用户必然会等于hadoop用户，而不是本地UGI
+   1. 后续版本升级，需要先看cube构建过程的改动，评估、测试后才可以去选择性升级
+   2. 后续mr任务替换为spark任务，cube构建过程会有一些影响，需要评估
+
+
+
 Apache Kylin
 ============
 
