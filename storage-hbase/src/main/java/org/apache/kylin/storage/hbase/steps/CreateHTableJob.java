@@ -26,18 +26,17 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.cli.Options;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.FsShell;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.kylin.common.KylinConfig;
-import org.apache.kylin.common.util.Bytes;
-import org.apache.kylin.common.util.BytesUtil;
-import org.apache.kylin.common.util.HadoopUtil;
-import org.apache.kylin.common.util.ShardingHash;
+import org.apache.kylin.common.util.*;
 import org.apache.kylin.cube.CubeInstance;
 import org.apache.kylin.cube.CubeManager;
 import org.apache.kylin.cube.CubeSegment;
@@ -78,6 +77,7 @@ public class CreateHTableJob extends AbstractHadoopJob {
 
         partitionFilePath = new Path(getOptionValue(OPTION_PARTITION_FILE_PATH));
 
+
         String cubeName = getOptionValue(OPTION_CUBE_NAME).toUpperCase();
         CubeManager cubeMgr = CubeManager.getInstance(KylinConfig.getInstanceFromEnv());
         cube = cubeMgr.getCube(cubeName);
@@ -110,8 +110,38 @@ public class CreateHTableJob extends AbstractHadoopJob {
 
         logger.info(String.format("prepare to create table %s", cubeSegment.getStorageLocationIdentifier()));
         CubeHTableUtil.createHTable(cubeSegment, splitKeys);
+
+        logger.info(String.format("partitionFilePath= %s",partitionFilePath.toString()));
+
+        Configuration hbaseConf = HBaseConnection.getCurrentHBaseConfiguration();
+        FileSystem hbaseFileSystem = FileSystem.get(hbaseConf);
+
+        Path cubeRootPath = new Path(StringUtils.substringBefore(partitionFilePath.toString(),cubeName.toLowerCase())+cubeName.toLowerCase());
+
+        chmodCubeSegmentDir(hbaseFileSystem,cubeRootPath,new FsShell(hbaseConf));
+
         return 0;
     }
+
+    private static void chmodCubeSegmentDir(FileSystem hbaseFileSystem, Path cubeRootPath, FsShell hbaseFsShell) throws Exception{
+
+        logger.info(String.format("wait for chmod dir is : %s",cubeRootPath.toString()));
+
+        int maxRetryCount = 10,currentCount = 1;
+        while(currentCount < maxRetryCount){
+            if(hbaseFileSystem.exists(cubeRootPath)){
+                //todo
+                hbaseFsShell.run(new String[] { "-chmod", "-R", "777",cubeRootPath.toString()});
+                currentCount = 10;
+            }
+            currentCount ++;
+            Thread.sleep(1000);
+        }
+
+    }
+
+
+
 
     //one region for one shard
     private static byte[][] getSplitsByRegionCount(int regionCount) {
