@@ -22,6 +22,10 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.InputStream;
 import java.util.HashMap;
+<<<<<<< HEAD
+=======
+import java.util.Locale;
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
 import java.util.Map;
 import java.util.Properties;
 
@@ -29,7 +33,11 @@ public class JDBCSqlQueryFormatProvider {
     static Map<String, Properties> cache = new HashMap<>();
 
     public static JDBCSqlQueryFormat createJDBCSqlQueriesFormat(String dialect) {
+<<<<<<< HEAD
         String key = String.format("/metadata-jdbc-%s.properties", dialect.toLowerCase());
+=======
+        String key = String.format(Locale.ROOT, "/metadata-jdbc-%s.properties", dialect.toLowerCase(Locale.ROOT));
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
         if (cache.containsKey(key)) {
             return new JDBCSqlQueryFormat(cache.get(key));
         } else {
@@ -43,7 +51,11 @@ public class JDBCSqlQueryFormatProvider {
                 }
                 return new JDBCSqlQueryFormat(props);
             } catch (Exception e) {
+<<<<<<< HEAD
                 throw new RuntimeException(String.format("Can't find properties named %s for metastore", key), e);
+=======
+                throw new RuntimeException(String.format(Locale.ROOT, "Can't find properties named %s for metastore", key), e);
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
             } finally {
                 IOUtils.closeQuietly(input);
             }

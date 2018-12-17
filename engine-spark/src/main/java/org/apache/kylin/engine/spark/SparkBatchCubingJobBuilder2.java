@@ -18,9 +18,6 @@
 
 package org.apache.kylin.engine.spark;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.kylin.common.KylinConfig;
 import org.apache.kylin.common.StorageURL;
 import org.apache.kylin.common.util.StringUtil;
@@ -34,6 +31,9 @@ import org.apache.kylin.job.constant.ExecutableConstants;
 import org.apache.kylin.metadata.model.IJoinedFlatTableDesc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  */
@@ -103,7 +103,7 @@ public class SparkBatchCubingJobBuilder2 extends JobBuilderSupport {
 
         sparkExecutable.setJobId(jobId);
         sparkExecutable.setName(ExecutableConstants.STEP_NAME_FACT_DISTINCT_COLUMNS);
-        sparkExecutable.setCounterSaveAs(CubingJob.SOURCE_RECORD_COUNT + "," + CubingJob.SOURCE_SIZE_BYTES, getCounterOuputPath(jobId));
+        sparkExecutable.setCounterSaveAs(CubingJob.SOURCE_RECORD_COUNT + "," + CubingJob.SOURCE_SIZE_BYTES, getCounterOutputPath(jobId));
 
         StringBuilder jars = new StringBuilder();
 

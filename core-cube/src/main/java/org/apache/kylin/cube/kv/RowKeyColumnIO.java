@@ -18,6 +18,7 @@
 
 package org.apache.kylin.cube.kv;
 
+import org.apache.kylin.common.util.BytesUtil;
 import org.apache.kylin.common.util.Dictionary;
 import org.apache.kylin.dimension.DictionaryDimEnc;
 import org.apache.kylin.dimension.DimensionEncoding;
@@ -55,9 +56,15 @@ public class RowKeyColumnIO implements java.io.Serializable {
         dimEnc.encode(value, output, outputOffset);
     }
 
+    public String readColumnStringKeepDicValue(TblColRef col, byte[] bytes, int offset, int length) {
+        DimensionEncoding dimEnc = dimEncMap.get(col);
+        if (dimEnc instanceof DictionaryDimEnc)
+            return String.valueOf(BytesUtil.readUnsigned(bytes, offset, length));
+        return dimEnc.decode(bytes, offset, length);
+    }
+
     public String readColumnString(TblColRef col, byte[] bytes, int offset, int length) {
         DimensionEncoding dimEnc = dimEncMap.get(col);
         return dimEnc.decode(bytes, offset, length);
     }
-
 }

@@ -299,7 +299,11 @@ public class CubeController extends BasicController {
     @RequestMapping(value = "/{cubeName}/refresh_lookup", method = { RequestMethod.PUT }, produces = {
             "application/json" })
     @ResponseBody
+<<<<<<< HEAD
     public JobInstance reBuildLookupSnapshot(@PathVariable String cubeName,
+=======
+    public JobInstance rebuildLookupSnapshot(@PathVariable String cubeName,
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
             @RequestBody LookupSnapshotBuildRequest request) {
         try {
             final CubeManager cubeMgr = cubeService.getCubeManager();
@@ -365,16 +369,12 @@ public class CubeController extends BasicController {
     @RequestMapping(value = "/{cubeName}/build2", method = { RequestMethod.PUT }, produces = { "application/json" })
     @ResponseBody
     public JobInstance build2(@PathVariable String cubeName, @RequestBody JobBuildRequest2 req) {
-        boolean existKafkaClient = false;
         try {
             Class<?> clazz = Class.forName("org.apache.kafka.clients.consumer.KafkaConsumer");
-            if (clazz != null) {
-                existKafkaClient = true;
+            if (clazz == null) {
+                throw new ClassNotFoundException();
             }
         } catch (ClassNotFoundException e) {
-            existKafkaClient = false;
-        }
-        if (!existKafkaClient) {
             throw new InternalErrorException("Could not find Kafka dependency");
         }
         return rebuild2(cubeName, req);

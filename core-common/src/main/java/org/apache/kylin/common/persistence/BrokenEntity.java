@@ -22,7 +22,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class BrokenEntity extends RootPersistentEntity {
 
+<<<<<<< HEAD:core-common/src/main/java/org/apache/kylin/common/persistence/BrokenEntity.java
     public static final byte[] MAGIC = new byte[]{'B', 'R', 'O', 'K', 'E', 'N'};
+=======
+    protected static final byte[] MAGIC = new byte[]{'B', 'R', 'O', 'K', 'E', 'N'};
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0:core-common/src/main/java/org/apache/kylin/common/persistence/BrokenEntity.java
 
     @JsonProperty("resPath")
     private String resPath;

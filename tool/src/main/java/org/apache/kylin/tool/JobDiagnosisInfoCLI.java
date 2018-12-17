@@ -32,6 +32,7 @@ import org.apache.kylin.common.KylinConfig;
 import org.apache.kylin.common.persistence.ResourceStore;
 import org.apache.kylin.common.persistence.ResourceTool;
 import org.apache.kylin.common.util.OptionsHelper;
+import org.apache.kylin.common.util.StringUtil;
 import org.apache.kylin.job.constant.ExecutableConstants;
 import org.apache.kylin.job.dao.ExecutableDao;
 import org.apache.kylin.job.dao.ExecutablePO;
@@ -100,16 +101,16 @@ public class JobDiagnosisInfoCLI extends AbstractInfoExtractor {
     protected void executeExtract(OptionsHelper optionsHelper, File exportDir) throws Exception {
         String kylinJobId = optionsHelper.getOptionValue(OPTION_JOB_ID);
         boolean includeCube = optionsHelper.hasOption(OPTION_INCLUDE_CUBE)
-                ? Boolean.valueOf(optionsHelper.getOptionValue(OPTION_INCLUDE_CUBE))
+                ? Boolean.parseBoolean(optionsHelper.getOptionValue(OPTION_INCLUDE_CUBE))
                 : true;
         boolean includeYarnLogs = optionsHelper.hasOption(OPTION_INCLUDE_YARN_LOGS)
-                ? Boolean.valueOf(optionsHelper.getOptionValue(OPTION_INCLUDE_YARN_LOGS))
+                ? Boolean.parseBoolean(optionsHelper.getOptionValue(OPTION_INCLUDE_YARN_LOGS))
                 : true;
         boolean includeClient = optionsHelper.hasOption(OPTION_INCLUDE_CLIENT)
-                ? Boolean.valueOf(optionsHelper.getOptionValue(OPTION_INCLUDE_CLIENT))
+                ? Boolean.parseBoolean(optionsHelper.getOptionValue(OPTION_INCLUDE_CLIENT))
                 : true;
         boolean includeConf = optionsHelper.hasOption(OPTION_INCLUDE_CONF)
-                ? Boolean.valueOf(optionsHelper.getOptionValue(OPTION_INCLUDE_CONF))
+                ? Boolean.parseBoolean(optionsHelper.getOptionValue(OPTION_INCLUDE_CONF))
                 : true;
 
         // dump job output
@@ -227,9 +228,9 @@ public class JobDiagnosisInfoCLI extends AbstractInfoExtractor {
         final String yarnCmd = "yarn application -status " + applicationId;
         final String cmdOutput = kylinConfig.getCliCommandExecutor().execute(yarnCmd).getSecond();
         final Map<String, String> params = Maps.newHashMap();
-        final String[] cmdOutputLines = cmdOutput.split("\n");
+        final String[] cmdOutputLines = StringUtil.split(cmdOutput, "\n");
         for (String cmdOutputLine : cmdOutputLines) {
-            String[] pair = cmdOutputLine.split(":");
+            String[] pair = StringUtil.split(cmdOutputLine, ":");
             if (pair.length >= 2) {
                 params.put(pair[0].trim(), pair[1].trim());
             }
@@ -242,11 +243,7 @@ public class JobDiagnosisInfoCLI extends AbstractInfoExtractor {
             return true;
         }
 
-        if (params.containsKey("Final-State") && params.get("Final-State").equals("SUCCEEDED")) {
-            return true;
-        }
-
-        return false;
+        return params.containsKey("Final-State") && params.get("Final-State").equals("SUCCEEDED");
     }
 
     private void addRequired(String record) {

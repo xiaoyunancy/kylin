@@ -42,6 +42,7 @@ public class JDBCConnectionManager {
 
     private static JDBCConnectionManager INSTANCE = null;
 
+<<<<<<< HEAD
     private static Object lock = new Object();
 
     public static JDBCConnectionManager getConnectionManager() {
@@ -51,6 +52,11 @@ public class JDBCConnectionManager {
                     INSTANCE = new JDBCConnectionManager(KylinConfig.getInstanceFromEnv());
                 }
             }
+=======
+    public static synchronized JDBCConnectionManager getConnectionManager() {
+        if (INSTANCE == null) {
+            INSTANCE = new JDBCConnectionManager(KylinConfig.getInstanceFromEnv());
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
         }
         return INSTANCE;
     }
@@ -67,10 +73,17 @@ public class JDBCConnectionManager {
             dataSource = BasicDataSourceFactory.createDataSource(getDbcpProperties());
             Connection conn = getConn();
             DatabaseMetaData mdm = conn.getMetaData();
+<<<<<<< HEAD
             logger.info("Connected to " + mdm.getDatabaseProductName() + " " + mdm.getDatabaseProductVersion());
             closeQuietly(conn);
         } catch (Exception e) {
             throw new RuntimeException(e);
+=======
+            logger.info("Connected to {0} {1}", mdm.getDatabaseProductName(), mdm.getDatabaseProductVersion());
+            closeQuietly(conn);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e);
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
         }
     }
 
@@ -94,7 +107,11 @@ public class JDBCConnectionManager {
             ret.remove("passwordEncrypted");
         }
 
+<<<<<<< HEAD
         logger.info("Connecting to Jdbc with url:" + ret.get("url") + " by user " + ret.get("username"));
+=======
+        logger.info("Connecting to Jdbc with url:{0} by user {1}", ret.get("url"), ret.get("username"));
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
 
         putIfMissing(ret, "driverClassName", "com.mysql.jdbc.Driver");
         putIfMissing(ret, "maxActive", "5");

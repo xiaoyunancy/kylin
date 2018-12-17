@@ -64,7 +64,11 @@ public class GarbageCollectionStep extends AbstractExecutable {
             for (String hiveTable : hiveTables) {
                 if (StringUtils.isNotEmpty(hiveTable)) {
                     hiveCmdBuilder.addStatement("USE " + config.getHiveDatabaseForIntermediateTable() + ";");
+<<<<<<< HEAD
                     hiveCmdBuilder.addStatement("DROP TABLE IF EXISTS  " + hiveTable + ";");
+=======
+                    hiveCmdBuilder.addStatement("DROP TABLE IF EXISTS  `" + hiveTable + "`;");
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
                     output.append("Hive table " + hiveTable + " is dropped. \n");
                 }
             }

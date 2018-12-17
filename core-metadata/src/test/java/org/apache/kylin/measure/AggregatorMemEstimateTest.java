@@ -109,7 +109,11 @@ public class AggregatorMemEstimateTest extends LocalFileMetadataTestCase {
         }
         bitmapAggregator.aggregate(bitmapCounter);
 
+<<<<<<< HEAD
         ExtendedColumnMeasureType extendedColumnType = new ExtendedColumnMeasureType("EXTENDED_COLUMN",
+=======
+        ExtendedColumnMeasureType extendedColumnType = new ExtendedColumnMeasureType(
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
                 DataType.getType("extendedcolumn(100)"));
         MeasureAggregator<ByteArray> extendedColumnAggregator = extendedColumnType.newAggregator();
         extendedColumnAggregator.aggregate(new ByteArray(100));

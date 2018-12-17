@@ -19,7 +19,7 @@
 package org.apache.kylin.storage.hbase.util;
 
 import java.io.Closeable;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -48,6 +48,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ZookeeperDistributedLock implements DistributedLock, JobLock {
     private static Logger logger = LoggerFactory.getLogger(ZookeeperDistributedLock.class);
+    private static final Random random = new Random();
 
     public static class Factory extends DistributedLockFactory {
 
@@ -128,7 +129,7 @@ public class ZookeeperDistributedLock implements DistributedLock, JobLock {
         this.curator = curator;
         this.zkPathBase = zkPathBase;
         this.client = client;
-        this.clientBytes = client.getBytes(Charset.forName("UTF-8"));
+        this.clientBytes = client.getBytes(StandardCharsets.UTF_8);
     }
 
     @Override
@@ -140,22 +141,22 @@ public class ZookeeperDistributedLock implements DistributedLock, JobLock {
     public boolean lock(String lockPath) {
         lockPath = norm(lockPath);
 
-        logger.debug(client + " trying to lock " + lockPath);
+        logger.debug("{} trying to lock {}", client, lockPath);
 
         try {
             curator.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL).forPath(lockPath, clientBytes);
         } catch (KeeperException.NodeExistsException ex) {
-            logger.debug(client + " see " + lockPath + " is already locked");
+            logger.debug("{} see {} is already locked", client, lockPath);
         } catch (Exception ex) {
-            throw new RuntimeException("Error while " + client + " trying to lock " + lockPath, ex);
+            throw new IllegalStateException("Error while " + client + " trying to lock " + lockPath, ex);
         }
 
         String lockOwner = peekLock(lockPath);
         if (client.equals(lockOwner)) {
-            logger.info(client + " acquired lock at " + lockPath);
+            logger.info("{} acquired lock at {}", client, lockPath);
             return true;
         } else {
-            logger.debug(client + " failed to acquire lock at " + lockPath + ", which is held by " + lockOwner);
+            logger.debug("{} failed to acquire lock at {}, which is held by {}", client, lockPath, lockOwner);
             return false;
         }
     }
@@ -170,20 +171,20 @@ public class ZookeeperDistributedLock implements DistributedLock, JobLock {
         if (timeout <= 0)
             timeout = Long.MAX_VALUE;
 
-        logger.debug(client + " will wait for lock path " + lockPath);
+        logger.debug("{} will wait for lock path {}", client, lockPath);
         long waitStart = System.currentTimeMillis();
-        Random random = new Random();
-        long sleep = 10 * 1000; // 10 seconds
+        long sleep = 10 * 1000L; // 10 seconds
 
         while (System.currentTimeMillis() - waitStart <= timeout) {
             try {
                 Thread.sleep((long) (1000 + sleep * random.nextDouble()));
             } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
                 return false;
             }
 
             if (lock(lockPath)) {
-                logger.debug(client + " waited " + (System.currentTimeMillis() - waitStart) + " ms for lock path " + lockPath);
+                logger.debug("{} waited {} ms for lock path {}", client, (System.currentTimeMillis() - waitStart), lockPath);
                 return true;
             }
         }
@@ -198,11 +199,11 @@ public class ZookeeperDistributedLock implements DistributedLock, JobLock {
 
         try {
             byte[] bytes = curator.getData().forPath(lockPath);
-            return new String(bytes, Charset.forName("UTF-8"));
+            return new String(bytes, StandardCharsets.UTF_8);
         } catch (KeeperException.NoNodeException ex) {
             return null;
         } catch (Exception ex) {
-            throw new RuntimeException("Error while peeking at " + lockPath, ex);
+            throw new IllegalStateException("Error while peeking at " + lockPath, ex);
         }
     }
 
@@ -220,7 +221,7 @@ public class ZookeeperDistributedLock implements DistributedLock, JobLock {
     public void unlock(String lockPath) {
         lockPath = norm(lockPath);
 
-        logger.debug(client + " trying to unlock " + lockPath);
+        logger.debug("{} trying to unlock {}", client, lockPath);
 
         String owner = peekLock(lockPath);
         if (owner == null)
@@ -231,10 +232,10 @@ public class ZookeeperDistributedLock implements DistributedLock, JobLock {
         try {
             curator.delete().guaranteed().deletingChildrenIfNeeded().forPath(lockPath);
 
-            logger.info(client + " released lock at " + lockPath);
+            logger.info("{} released lock at {}", client, lockPath);
 
         } catch (Exception ex) {
-            throw new RuntimeException("Error while " + client + " trying to unlock " + lockPath, ex);
+            throw new IllegalStateException("Error while " + client + " trying to unlock " + lockPath, ex);
         }
     }
 
@@ -245,10 +246,10 @@ public class ZookeeperDistributedLock implements DistributedLock, JobLock {
         try {
             curator.delete().guaranteed().deletingChildrenIfNeeded().forPath(lockPathRoot);
 
-            logger.info(client + " purged all locks under " + lockPathRoot);
+            logger.info("{} purged all locks under {}", client, lockPathRoot);
 
         } catch (Exception ex) {
-            throw new RuntimeException("Error while " + client + " trying to purge " + lockPathRoot, ex);
+            throw new IllegalStateException("Error while " + client + " trying to purge " + lockPathRoot, ex);
         }
     }
 
@@ -264,10 +265,10 @@ public class ZookeeperDistributedLock implements DistributedLock, JobLock {
                 public void childEvent(CuratorFramework client, PathChildrenCacheEvent event) throws Exception {
                     switch (event.getType()) {
                     case CHILD_ADDED:
-                        watcher.onLock(event.getData().getPath(), new String(event.getData().getData(), Charset.forName("UTF-8")));
+                        watcher.onLock(event.getData().getPath(), new String(event.getData().getData(), StandardCharsets.UTF_8));
                         break;
                     case CHILD_REMOVED:
-                        watcher.onUnlock(event.getData().getPath(), new String(event.getData().getData(), Charset.forName("UTF-8")));
+                        watcher.onUnlock(event.getData().getPath(), new String(event.getData().getData(), StandardCharsets.UTF_8));
                         break;
                     default:
                         break;

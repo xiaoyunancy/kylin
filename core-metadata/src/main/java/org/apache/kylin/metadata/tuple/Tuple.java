@@ -176,9 +176,9 @@ public class Tuple implements ITuple {
     public static long getTs(ITuple row, TblColRef partitionCol) {
         //ts column type differentiate
         if (partitionCol.getDatatype().equals("date")) {
-            return epicDaysToMillis(Integer.valueOf(row.getValue(partitionCol).toString()));
+            return epicDaysToMillis(Integer.parseInt(row.getValue(partitionCol).toString()));
         } else {
-            return Long.valueOf(row.getValue(partitionCol).toString());
+            return Long.parseLong(row.getValue(partitionCol).toString());
         }
     }
 

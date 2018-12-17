@@ -130,8 +130,13 @@ public class ProjectController extends BasicController {
         if (!ValidateUtil.isAlphanumericUnderscore(projectDesc.getName())) {
             throw new BadRequestException(
                     String.format(Locale.ROOT,
+<<<<<<< HEAD
                             "Invalid Project name %s, only letters, numbers and underscore " + "supported."),
                     projectDesc.getName());
+=======
+                            "Invalid Project name %s, only letters, numbers and underscore supported.",
+                    projectDesc.getName()));
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
         }
 
         ProjectInstance createdProj = null;

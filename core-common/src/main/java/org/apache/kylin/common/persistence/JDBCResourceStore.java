@@ -23,7 +23,10 @@ import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.NavigableSet;
+<<<<<<< HEAD
 import java.util.TreeSet;
+=======
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
 
 import org.apache.commons.io.IOUtils;
 import org.apache.kylin.common.KylinConfig;
@@ -91,7 +94,11 @@ public class JDBCResourceStore extends ResourceStore {
     @Override
     protected NavigableSet<String> listResourcesImpl(String folderPath, boolean recursive) throws IOException {
         try {
+<<<<<<< HEAD
             final TreeSet<String> result = resourceDAO.listAllResource(makeFolderPath(folderPath), recursive);
+=======
+            final NavigableSet<String> result = resourceDAO.listAllResource(makeFolderPath(folderPath), recursive);
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
             return result.isEmpty() ? null : result;
         } catch (SQLException e) {
             throw new IOException(e);

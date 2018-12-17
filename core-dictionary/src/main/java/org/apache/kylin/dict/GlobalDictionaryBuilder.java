@@ -19,6 +19,7 @@
 package org.apache.kylin.dict;
 
 import java.io.IOException;
+import java.util.Locale;
 
 import java.util.Locale;
 import org.apache.kylin.common.KylinConfig;

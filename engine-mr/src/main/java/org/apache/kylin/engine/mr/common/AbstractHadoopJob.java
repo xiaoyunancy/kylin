@@ -324,7 +324,7 @@ public abstract class AbstractHadoopJob extends Configured implements Tool {
             StringBuilder jarList = new StringBuilder();
             StringBuilder fileList = new StringBuilder();
 
-            for (String fileName : kylinDependency.split(",")) {
+            for (String fileName : StringUtil.splitAndTrim(kylinDependency, ",")) {
                 Path p = new Path(fileName);
                 if (p.isAbsolute() == false) {
                     logger.warn("The directory of kylin dependency '" + fileName + "' is not absolute, skip");
@@ -625,24 +625,29 @@ public abstract class AbstractHadoopJob extends Configured implements Tool {
     }
 
     protected void cleanupTempConfFile(Configuration conf) {
-        String tempMetaFileString = conf.get("tmpfiles");
-        logger.trace("tempMetaFileString is : " + tempMetaFileString);
-        if (tempMetaFileString != null) {
-            if (tempMetaFileString.startsWith("file://")) {
-                tempMetaFileString = tempMetaFileString.substring("file://".length());
-                File tempMetaFile = new File(tempMetaFileString);
-                if (tempMetaFile.exists()) {
-                    try {
-                        FileUtils.forceDelete(tempMetaFile.getParentFile());
+        String[] tempfiles = StringUtils.split(conf.get("tmpfiles"), ",");
+        if (tempfiles == null) {
+            return;
+        }
+        for (String tempMetaFileString : tempfiles) {
+            logger.trace("tempMetaFileString is : " + tempMetaFileString);
+            if (tempMetaFileString != null) {
+                if (tempMetaFileString.startsWith("file://")) {
+                    tempMetaFileString = tempMetaFileString.substring("file://".length());
+                    File tempMetaFile = new File(tempMetaFileString);
+                    if (tempMetaFile.exists()) {
+                        try {
+                            FileUtils.forceDelete(tempMetaFile.getParentFile());
 
-                    } catch (IOException e) {
-                        logger.warn("error when deleting " + tempMetaFile, e);
+                        } catch (IOException e) {
+                            logger.warn("error when deleting " + tempMetaFile, e);
+                        }
+                    } else {
+                        logger.info("" + tempMetaFileString + " does not exist");
                     }
                 } else {
-                    logger.info("" + tempMetaFileString + " does not exist");
+                    logger.info("tempMetaFileString is not starting with file:// :" + tempMetaFileString);
                 }
-            } else {
-                logger.info("tempMetaFileString is not starting with file:// :" + tempMetaFileString);
             }
         }
     }

@@ -17,6 +17,7 @@
 */
 package org.apache.kylin.engine.spark;
 
+<<<<<<< HEAD
 import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -24,11 +25,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
+=======
+import com.google.common.collect.Maps;
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.kylin.common.KylinConfig;
 import org.apache.kylin.common.util.AbstractApplication;
 import org.apache.kylin.common.util.ByteArray;
@@ -46,8 +52,6 @@ import org.apache.kylin.cube.model.CubeDesc;
 import org.apache.kylin.cube.model.CubeJoinedFlatTableEnrich;
 import org.apache.kylin.engine.EngineFactory;
 import org.apache.kylin.engine.mr.BatchCubingJobBuilder2;
-import org.apache.kylin.engine.mr.IMROutput2;
-import org.apache.kylin.engine.mr.MRUtil;
 import org.apache.kylin.engine.mr.common.AbstractHadoopJob;
 import org.apache.kylin.engine.mr.common.BaseCuboidBuilder;
 import org.apache.kylin.engine.mr.common.BatchConstants;
@@ -55,6 +59,7 @@ import org.apache.kylin.engine.mr.common.CubeStatsReader;
 import org.apache.kylin.engine.mr.common.NDCuboidBuilder;
 import org.apache.kylin.engine.mr.common.SerializableConfiguration;
 import org.apache.kylin.job.JoinedFlatTable;
+import org.apache.kylin.job.constant.ExecutableConstants;
 import org.apache.kylin.measure.BufferedMeasureCodec;
 import org.apache.kylin.measure.MeasureAggregators;
 import org.apache.kylin.measure.MeasureIngester;
@@ -70,7 +75,17 @@ import org.apache.spark.storage.StorageLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+<<<<<<< HEAD
 import scala.Tuple2;
+=======
+import java.io.Serializable;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
 
 /**
  * Spark application to build cube with the "by-layer" algorithm. Only support source data from Hive; Metadata in HBase.
@@ -91,6 +106,11 @@ public class SparkCubingByLayer extends AbstractApplication implements Serializa
             .withDescription("Hive Intermediate Table").create("hiveTable");
     public static final Option OPTION_INPUT_PATH = OptionBuilder.withArgName(BatchConstants.ARG_INPUT).hasArg()
             .isRequired(true).withDescription("Hive Intermediate Table PATH").create(BatchConstants.ARG_INPUT);
+<<<<<<< HEAD
+=======
+    public static final Option OPTION_COUNTER_PATH = OptionBuilder.withArgName(BatchConstants.ARG_COUNTER_OUPUT).hasArg()
+            .isRequired(false).withDescription("counter output path").create(BatchConstants.ARG_COUNTER_OUPUT);
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
 
     private Options options;
 
@@ -102,6 +122,7 @@ public class SparkCubingByLayer extends AbstractApplication implements Serializa
         options.addOption(OPTION_SEGMENT_ID);
         options.addOption(OPTION_META_URL);
         options.addOption(OPTION_OUTPUT_PATH);
+        options.addOption(OPTION_COUNTER_PATH);
     }
 
     @Override
@@ -117,8 +138,9 @@ public class SparkCubingByLayer extends AbstractApplication implements Serializa
         String cubeName = optionsHelper.getOptionValue(OPTION_CUBE_NAME);
         String segmentId = optionsHelper.getOptionValue(OPTION_SEGMENT_ID);
         String outputPath = optionsHelper.getOptionValue(OPTION_OUTPUT_PATH);
+        String counterPath = optionsHelper.getOptionValue(OPTION_COUNTER_PATH);
 
-        Class[] kryoClassArray = new Class[] { Class.forName("scala.reflect.ClassTag$$anon$1") };
+        Class[] kryoClassArray = new Class[] { Class.forName("scala.reflect.ClassTag$$anon$1"), Class.forName("org.apache.spark.internal.io.FileCommitProtocol$TaskCommitMessage"), Class.forName("scala.collection.immutable.Set$EmptySet$") };
 
         SparkConf conf = new SparkConf().setAppName("Cubing for:" + cubeName + " segment " + segmentId);
         //serialization conf
@@ -128,6 +150,7 @@ public class SparkCubingByLayer extends AbstractApplication implements Serializa
 
         KylinSparkJobListener jobListener = new KylinSparkJobListener();
         JavaSparkContext sc = new JavaSparkContext(conf);
+
         sc.sc().addSparkListener(jobListener);
         HadoopUtil.deletePath(sc.hadoopConfiguration(), new Path(outputPath));
         SparkUtil.modifySparkHadoopConfiguration(sc.sc()); // set dfs.replication=2 and enable compress
@@ -205,10 +228,22 @@ public class SparkCubingByLayer extends AbstractApplication implements Serializa
         }
         allRDDs[totalLevels].unpersist();
         logger.info("Finished on calculating all level cuboids.");
+
+        // only parquet storage work
         logger.info("HDFS: Number of bytes written=" + jobListener.metrics.getBytesWritten());
-        //HadoopUtil.deleteHDFSMeta(metaUrl);
+
+<<<<<<< HEAD
+=======
+        if (counterPath != null) {
+            Map<String, String> counterMap = Maps.newHashMap();
+            counterMap.put(ExecutableConstants.HDFS_BYTES_WRITTEN, String.valueOf(jobListener.metrics.getBytesWritten()));
+
+            // save counter to hdfs
+            HadoopUtil.writeToSequenceFile(sc.hadoopConfiguration(), counterPath, counterMap);
+        }
     }
 
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
     protected JavaPairRDD<ByteArray, Object[]> prepareOutput(JavaPairRDD<ByteArray, Object[]> rdd, KylinConfig config,
             CubeSegment segment, int level) {
         return rdd;
@@ -220,8 +255,8 @@ public class SparkCubingByLayer extends AbstractApplication implements Serializa
         final String cuboidOutputPath = BatchCubingJobBuilder2.getCuboidOutputPathsByLevel(hdfsBaseLocation, level);
         final SerializableConfiguration sConf = new SerializableConfiguration(job.getConfiguration());
 
-        IMROutput2.IMROutputFormat outputFormat = MRUtil.getBatchCubingOutputSide2(cubeSeg).getOuputFormat();
-        outputFormat.configureJobOutput(job, cuboidOutputPath, cubeSeg, cubeSeg.getCuboidScheduler(), level);
+        FileOutputFormat.setOutputPath(job, new Path(cuboidOutputPath));
+        job.setOutputFormatClass(SequenceFileOutputFormat.class);
 
         prepareOutput(rdd, kylinConfig, cubeSeg, level).mapToPair(
                 new PairFunction<Tuple2<ByteArray, Object[]>, org.apache.hadoop.io.Text, org.apache.hadoop.io.Text>() {

@@ -47,22 +47,26 @@ import com.google.common.collect.Maps;
  */
 public class DefaultScheduler implements Scheduler<AbstractExecutable>, ConnectionStateListener {
 
-    private static DefaultScheduler INSTANCE = null;
+    private static DefaultScheduler INSTANCE;
 
-    public static DefaultScheduler getInstance() {
+    public synchronized static DefaultScheduler getInstance() {
         if (INSTANCE == null) {
             INSTANCE = createInstance();
         }
         return INSTANCE;
     }
 
+<<<<<<< HEAD
     public synchronized static DefaultScheduler createInstance() {
+=======
+    public static synchronized DefaultScheduler createInstance() {
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
         destroyInstance();
         INSTANCE = new DefaultScheduler();
         return INSTANCE;
     }
 
-    public synchronized static void destroyInstance() {
+    public static synchronized void destroyInstance() {
         DefaultScheduler tmp = INSTANCE;
         INSTANCE = null;
         if (tmp != null) {

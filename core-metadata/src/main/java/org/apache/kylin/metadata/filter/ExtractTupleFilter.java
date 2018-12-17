@@ -68,7 +68,7 @@ public class ExtractTupleFilter extends TupleFilter {
         }
 
         // extract date
-        this.date = extractDate(extractType, Integer.valueOf(tupleValue));
+        this.date = extractDate(extractType, Integer.parseInt(tupleValue));
         return true;
     }
 
@@ -120,6 +120,11 @@ public class ExtractTupleFilter extends TupleFilter {
 
     @Override
     public void deserialize(IFilterCodeSystem<?> cs, ByteBuffer buffer) {
+    }
+
+    @Override
+    public String toSQL() {
+        return "1=1";
     }
 
 }

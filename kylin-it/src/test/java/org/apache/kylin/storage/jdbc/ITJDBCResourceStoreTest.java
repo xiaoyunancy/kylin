@@ -22,7 +22,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.kylin.common.KylinConfig;
 import org.apache.kylin.common.StorageURL;
 import org.apache.kylin.common.persistence.JDBCConnectionManager;
+<<<<<<< HEAD
 import org.apache.kylin.common.persistence.JDBCResourceDAO;
+=======
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
 import org.apache.kylin.common.persistence.JDBCResourceStore;
 import org.apache.kylin.common.persistence.JDBCSqlQueryFormat;
 import org.apache.kylin.common.persistence.JDBCSqlQueryFormatProvider;
@@ -47,10 +50,18 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.Statement;
+<<<<<<< HEAD
+=======
+import java.text.FieldPosition;
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+<<<<<<< HEAD
+=======
+import java.util.Locale;
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
 import java.util.Map;
 import java.util.NavigableSet;
 import java.util.UUID;
@@ -87,6 +98,7 @@ public class ITJDBCResourceStoreTest extends HBaseMetadataTestCase {
             connectionManager = JDBCConnectionManager.getConnectionManager();
             conn = connectionManager.getConn();
             statement = conn.createStatement();
+<<<<<<< HEAD
             String sql = MessageFormat.format(sqlQueryFormat.getTestDropSql(), mainIdentifier);
             statement.executeUpdate(sql);
             sql = MessageFormat.format(sqlQueryFormat.getTestDropSql(), mainIdentifier + JDBCResourceDAO.LOG_TABLE_SUFFIX);
@@ -94,6 +106,13 @@ public class ITJDBCResourceStoreTest extends HBaseMetadataTestCase {
             sql = MessageFormat.format(sqlQueryFormat.getTestDropSql(), copyIdentifier);
             statement.executeUpdate(sql);
             sql = MessageFormat.format(sqlQueryFormat.getTestDropSql(), copyIdentifier + JDBCResourceDAO.LOG_TABLE_SUFFIX);
+=======
+            String sql = new MessageFormat(sqlQueryFormat.getTestDropSql(), Locale.ROOT)
+                    .format(mainIdentifier, new StringBuffer(), new FieldPosition(0)).toString();
+            statement.executeUpdate(sql);
+            sql = new MessageFormat(sqlQueryFormat.getTestDropSql(), Locale.ROOT)
+                    .format(copyIdentifier, new StringBuffer(), new FieldPosition(0)).toString();
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
             statement.executeUpdate(sql);
             jdbcConnectable = true;
             ResourceTool.copy(configBackup, kylinConfig);
@@ -255,6 +274,7 @@ public class ITJDBCResourceStoreTest extends HBaseMetadataTestCase {
         long queryNumAfterCopy = store.getQueriedSqlNum();
         JDBCResourceStore resourceStoreCopy = (JDBCResourceStore) ResourceStore.getStore(tmpConfig);
 
+<<<<<<< HEAD
         int executeNum = store.listResources(ResourceStore.EXECUTE_RESOURCE_ROOT).size();
         int executeOutputNum = store.listResources(ResourceStore.EXECUTE_OUTPUT_RESOURCE_ROOT).size();
 
@@ -262,6 +282,15 @@ public class ITJDBCResourceStoreTest extends HBaseMetadataTestCase {
         assertEquals(executeOutputNum, resourceStoreCopy.listResources(ResourceStore.EXECUTE_OUTPUT_RESOURCE_ROOT).size());
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+=======
+        int executeNum = store.listResources("/execute").size();
+        int executeOutputNum = store.listResources("/execute_output").size();
+
+        assertEquals(executeNum, resourceStoreCopy.listResources("/execute").size());
+        assertEquals(executeOutputNum, resourceStoreCopy.listResources("/execute_output").size());
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ROOT);
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
         String startTime = sdf.format(new Date(Long.parseLong(String.valueOf(startTs))));
         String endTime = sdf.format(new Date(Long.parseLong(String.valueOf(endTs))));
 

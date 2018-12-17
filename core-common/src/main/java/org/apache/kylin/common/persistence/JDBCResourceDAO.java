@@ -28,8 +28,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+<<<<<<< HEAD
 import java.text.MessageFormat;
 import java.util.List;
+=======
+import java.text.FieldPosition;
+import java.text.MessageFormat;
+import java.util.List;
+import java.util.Locale;
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
 import java.util.NavigableSet;
 import java.util.TreeSet;
 
@@ -44,6 +51,10 @@ import org.apache.kylin.common.util.HadoopUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+<<<<<<< HEAD
+=======
+import com.google.common.base.Preconditions;
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
 import com.google.common.collect.Interner;
 import com.google.common.collect.Interners;
 import com.google.common.collect.Lists;
@@ -71,7 +82,10 @@ public class JDBCResourceDAO {
 
     private FileSystem redirectFileSystem;
 
+<<<<<<< HEAD
     public static final String LOG_TABLE_SUFFIX = "_log";
+=======
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
     private Interner<String> interner = Interners.newStrongInterner();
 
     public JDBCResourceDAO(KylinConfig kylinConfig, String metadataIdentifier) throws SQLException {
@@ -80,7 +94,11 @@ public class JDBCResourceDAO {
         this.jdbcSqlQueryFormat = JDBCSqlQueryFormatProvider
                 .createJDBCSqlQueriesFormat(kylinConfig.getMetadataDialect());
         this.tableNames[0] = metadataIdentifier;
+<<<<<<< HEAD
         this.tableNames[1] = metadataIdentifier + LOG_TABLE_SUFFIX;
+=======
+        this.tableNames[1] = metadataIdentifier + "_log";
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
         for (int i = 0; i < tableNames.length; i++) {
             createTableIfNeeded(tableNames[i]);
             createIndex("IDX_" + META_TABLE_TS, tableNames[i], META_TABLE_TS);
@@ -120,7 +138,11 @@ public class JDBCResourceDAO {
                     if (fetchContent) {
                         try {
                             resource.setContent(getInputStream(resourcePath, rs));
+<<<<<<< HEAD
                         } catch (Throwable e) {
+=======
+                        } catch (Exception e) {
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
                             if (!isAllowBroken) {
                                 throw new SQLException(e);
                             }
@@ -151,8 +173,13 @@ public class JDBCResourceDAO {
     }
 
     //fetch primary key only
+<<<<<<< HEAD
     public TreeSet<String> listAllResource(final String folderPath, final boolean recursive) throws SQLException {
         final TreeSet<String> allResourceName = new TreeSet<>();
+=======
+    public NavigableSet<String> listAllResource(final String folderPath, final boolean recursive) throws SQLException {
+        final NavigableSet<String> allResourceName = new TreeSet<>();
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
         if (isRootPath(folderPath)) {
             for (int i = 0; i < tableNames.length; i++) {
                 final String tableName = tableNames[i];
@@ -165,7 +192,11 @@ public class JDBCResourceDAO {
     }
 
     private void listResource(final String tableName, final String folderPath,
+<<<<<<< HEAD
                               final NavigableSet<String> allResourceName, final boolean recursive) throws SQLException {
+=======
+            final NavigableSet<String> allResourceName, final boolean recursive) throws SQLException {
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
         executeSql(new SqlOperation() {
             @Override
             public void execute(Connection connection) throws SQLException {
@@ -174,7 +205,11 @@ public class JDBCResourceDAO {
                 rs = pstat.executeQuery();
                 while (rs.next()) {
                     String path = rs.getString(META_TABLE_KEY);
+<<<<<<< HEAD
                     assert path.startsWith(folderPath);
+=======
+                    Preconditions.checkState(path.startsWith(folderPath));
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
                     if (recursive) {
                         allResourceName.add(path);
                     } else {
@@ -207,7 +242,11 @@ public class JDBCResourceDAO {
                         resource.setTimestamp(rs.getLong(META_TABLE_TS));
                         try {
                             resource.setContent(getInputStream(resPath, rs));
+<<<<<<< HEAD
                         } catch (Throwable e) {
+=======
+                        } catch (Exception e) {
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
                             if (!isAllowBroken) {
                                 throw new SQLException(e);
                             }
@@ -268,8 +307,13 @@ public class JDBCResourceDAO {
                 pstat.executeUpdate();
             }
         });
+<<<<<<< HEAD
 
     }
+=======
+    }
+
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
     private void deleteHDFSResourceIfExist(String resourcePath) throws IOException {
         Path redirectPath = bigCellHDFSPath(resourcePath);
         if (redirectFileSystem.exists(redirectPath)) {
@@ -413,7 +457,11 @@ public class JDBCResourceDAO {
             bout = new ByteArrayOutputStream();
             IOUtils.copy(resource.getContent(), bout);
             return bout.toByteArray();
+<<<<<<< HEAD
         } catch (Throwable e) {
+=======
+        } catch (Exception e) {
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
             throw new SQLException(e);
         } finally {
             IOUtils.closeQuietly(bout);
@@ -464,9 +512,16 @@ public class JDBCResourceDAO {
             }
 
             private boolean checkTableExists(final String tableName, final Connection connection) throws SQLException {
+<<<<<<< HEAD
                 final PreparedStatement ps = connection.prepareStatement(getCheckTableExistsSql(tableName));
                 ResultSet rs = null;
                 try {
+=======
+                PreparedStatement ps = null;
+                ResultSet rs = null;
+                try {
+                    ps = connection.prepareStatement(getCheckTableExistsSql(tableName));
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
                     rs = ps.executeQuery();
                     while (rs.next()) {
                         if (tableName.equals(rs.getString(1))) {
@@ -518,80 +573,166 @@ public class JDBCResourceDAO {
     }
 
     private String getCheckTableExistsSql(final String tableName) {
+<<<<<<< HEAD
         final String sql = MessageFormat.format(jdbcSqlQueryFormat.getCheckTableExistsSql(), tableName);
+=======
+        final String sql = new MessageFormat(jdbcSqlQueryFormat.getCheckTableExistsSql(), Locale.ROOT)
+                .format(new Object[] { tableName }, new StringBuffer(), new FieldPosition(0)).toString();
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
         return sql;
     }
 
     //sql queries
     private String getCreateIfNeededSql(String tableName) {
+<<<<<<< HEAD
         String sql = MessageFormat.format(jdbcSqlQueryFormat.getCreateIfNeedSql(), tableName, META_TABLE_KEY,
                 META_TABLE_TS, META_TABLE_CONTENT);
+=======
+        String sql = new MessageFormat(jdbcSqlQueryFormat.getCreateIfNeedSql(), Locale.ROOT)
+                .format(new Object[] { tableName, META_TABLE_KEY, META_TABLE_TS, META_TABLE_CONTENT },
+                        new StringBuffer(), new FieldPosition(0))
+                .toString();
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
         return sql;
     }
 
     //sql queries
     private String getCreateIndexSql(String indexName, String tableName, String indexCol) {
+<<<<<<< HEAD
         String sql = MessageFormat.format(jdbcSqlQueryFormat.getCreateIndexSql(), indexName, tableName, indexCol);
+=======
+        String sql = new MessageFormat(jdbcSqlQueryFormat.getCreateIndexSql(), Locale.ROOT)
+                .format(new Object[] { indexName, tableName, indexCol }, new StringBuffer(), new FieldPosition(0))
+                .toString();
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
         return sql;
     }
 
     private String getKeyEqualSqlString(String tableName, boolean fetchContent, boolean fetchTimestamp) {
+<<<<<<< HEAD
         String sql = MessageFormat.format(jdbcSqlQueryFormat.getKeyEqualsSql(),
                 getSelectList(fetchContent, fetchTimestamp), tableName, META_TABLE_KEY);
+=======
+        String sql = new MessageFormat(jdbcSqlQueryFormat.getKeyEqualsSql(), Locale.ROOT)
+                .format(new Object[] { getSelectList(fetchContent, fetchTimestamp), tableName, META_TABLE_KEY },
+                        new StringBuffer(), new FieldPosition(0))
+                .toString();
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
         return sql;
     }
 
     private String getDeletePstatSql(String tableName) {
+<<<<<<< HEAD
         String sql = MessageFormat.format(jdbcSqlQueryFormat.getDeletePstatSql(), tableName, META_TABLE_KEY);
+=======
+        String sql = new MessageFormat(jdbcSqlQueryFormat.getDeletePstatSql(), Locale.ROOT)
+                .format(new Object[] { tableName, META_TABLE_KEY }, new StringBuffer(), new FieldPosition(0))
+                .toString();
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
         return sql;
     }
 
     private String getListResourceSqlString(String tableName) {
+<<<<<<< HEAD
         String sql = MessageFormat.format(jdbcSqlQueryFormat.getListResourceSql(), META_TABLE_KEY, tableName,
                 META_TABLE_KEY);
+=======
+        String sql = new MessageFormat(jdbcSqlQueryFormat.getListResourceSql(), Locale.ROOT)
+                .format(new Object[] { META_TABLE_KEY, tableName, META_TABLE_KEY }, new StringBuffer(),
+                        new FieldPosition(0))
+                .toString();
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
         return sql;
     }
 
     private String getAllResourceSqlString(String tableName) {
+<<<<<<< HEAD
         String sql = MessageFormat.format(jdbcSqlQueryFormat.getAllResourceSql(), getSelectList(true, true), tableName,
                 META_TABLE_KEY, META_TABLE_TS, META_TABLE_TS);
+=======
+        String sql = new MessageFormat(jdbcSqlQueryFormat.getAllResourceSql(), Locale.ROOT).format(
+                new Object[] { getSelectList(true, true), tableName, META_TABLE_KEY, META_TABLE_TS, META_TABLE_TS },
+                new StringBuffer(), new FieldPosition(0)).toString();
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
         return sql;
     }
 
     private String getReplaceSql(String tableName) {
+<<<<<<< HEAD
         String sql = MessageFormat.format(jdbcSqlQueryFormat.getReplaceSql(), tableName, META_TABLE_TS,
                 META_TABLE_CONTENT, META_TABLE_KEY);
+=======
+        String sql = new MessageFormat(jdbcSqlQueryFormat.getReplaceSql(), Locale.ROOT)
+                .format(new Object[] { tableName, META_TABLE_TS, META_TABLE_CONTENT, META_TABLE_KEY },
+                        new StringBuffer(), new FieldPosition(0))
+                .toString();
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
         return sql;
     }
 
     private String getInsertSql(String tableName) {
+<<<<<<< HEAD
         String sql = MessageFormat.format(jdbcSqlQueryFormat.getInsertSql(), tableName, META_TABLE_KEY, META_TABLE_TS,
                 META_TABLE_CONTENT);
+=======
+        String sql = new MessageFormat(jdbcSqlQueryFormat.getInsertSql(), Locale.ROOT)
+                .format(new Object[] { tableName, META_TABLE_KEY, META_TABLE_TS, META_TABLE_CONTENT },
+                        new StringBuffer(), new FieldPosition(0))
+                .toString();
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
         return sql;
     }
 
     @SuppressWarnings("unused")
     private String getReplaceSqlWithoutContent(String tableName) {
+<<<<<<< HEAD
         String sql = MessageFormat.format(jdbcSqlQueryFormat.getReplaceSqlWithoutContent(), tableName, META_TABLE_TS,
                 META_TABLE_KEY);
+=======
+        String sql = new MessageFormat(jdbcSqlQueryFormat.getReplaceSqlWithoutContent(), Locale.ROOT)
+                .format(new Object[] { tableName, META_TABLE_TS, META_TABLE_KEY }, new StringBuffer(),
+                        new FieldPosition(0))
+                .toString();
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
         return sql;
     }
 
     private String getInsertSqlWithoutContent(String tableName) {
+<<<<<<< HEAD
         String sql = MessageFormat.format(jdbcSqlQueryFormat.getInsertSqlWithoutContent(), tableName, META_TABLE_KEY,
                 META_TABLE_TS);
+=======
+        String sql = new MessageFormat(jdbcSqlQueryFormat.getInsertSqlWithoutContent(), Locale.ROOT)
+                .format(new Object[] { tableName, META_TABLE_KEY, META_TABLE_TS }, new StringBuffer(),
+                        new FieldPosition(0))
+                .toString();
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
         return sql;
     }
 
     private String getUpdateSqlWithoutContent(String tableName) {
+<<<<<<< HEAD
         String sql = MessageFormat.format(jdbcSqlQueryFormat.getUpdateSqlWithoutContent(), tableName, META_TABLE_TS,
                 META_TABLE_KEY, META_TABLE_TS);
+=======
+        String sql = new MessageFormat(jdbcSqlQueryFormat.getUpdateSqlWithoutContent(), Locale.ROOT)
+                .format(new Object[] { tableName, META_TABLE_TS, META_TABLE_KEY, META_TABLE_TS }, new StringBuffer(),
+                        new FieldPosition(0))
+                .toString();
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
         return sql;
     }
 
     private String getUpdateContentSql(String tableName) {
+<<<<<<< HEAD
         String sql = MessageFormat.format(jdbcSqlQueryFormat.getUpdateContentSql(), tableName, META_TABLE_CONTENT,
                 META_TABLE_KEY);
+=======
+        String sql = new MessageFormat(jdbcSqlQueryFormat.getUpdateContentSql(), Locale.ROOT)
+                .format(new Object[] { tableName, META_TABLE_CONTENT, META_TABLE_KEY }, new StringBuffer(),
+                        new FieldPosition(0))
+                .toString();
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
         return sql;
     }
 
@@ -636,10 +777,17 @@ public class JDBCResourceDAO {
             out = redirectFileSystem.create(redirectPath);
             out.write(largeColumn);
             return redirectPath;
+<<<<<<< HEAD
         } catch (Throwable e) {
             try {
                 rollbackLargeCellFromHdfs(resPath);
             } catch (Throwable ex) {
+=======
+        } catch (Exception e) {
+            try {
+                rollbackLargeCellFromHdfs(resPath);
+            } catch (Exception ex) {
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
                 logger.error("fail to roll back resource " + resPath + " in hdfs", ex);
             }
             throw new SQLException(e);
@@ -648,7 +796,10 @@ public class JDBCResourceDAO {
         }
     }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
     public void rollbackLargeCellFromHdfs(String resPath) throws SQLException {
         Path redirectPath = bigCellHDFSPath(resPath);
         Path oldPath = new Path(redirectPath.toString() + "_old");
@@ -661,12 +812,20 @@ public class JDBCResourceDAO {
                 redirectFileSystem.delete(redirectPath, true);
                 logger.warn("no backup for hdfs file {} is found, clean it", resPath);
             }
+<<<<<<< HEAD
         } catch (Throwable e) {
+=======
+        } catch (Exception e) {
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
 
             try {
                 //last try to delete redirectPath, because we prefer a deleted rather than incomplete
                 redirectFileSystem.delete(redirectPath, true);
+<<<<<<< HEAD
             } catch (Throwable ex) {
+=======
+            } catch (Exception ex) {
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
                 logger.error("fail to delete resource " + redirectPath + " in hdfs", ex);
             }
 
@@ -681,7 +840,11 @@ public class JDBCResourceDAO {
             if (redirectFileSystem.exists(oldPath)) {
                 redirectFileSystem.delete(oldPath, true);
             }
+<<<<<<< HEAD
         } catch (Throwable e) {
+=======
+        } catch (Exception e) {
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
             logger.warn("error cleaning the backup file for " + redirectPath + ", leave it as garbage", e);
         }
     }
@@ -689,7 +852,11 @@ public class JDBCResourceDAO {
     public Path bigCellHDFSPath(String resPath) {
         String hdfsWorkingDirectory = this.kylinConfig.getHdfsWorkingDirectory();
         Path redirectPath = new Path(hdfsWorkingDirectory, "resources-jdbc" + resPath);
+<<<<<<< HEAD
         redirectPath =  Path.getPathWithoutSchemeAndAuthority(redirectPath);
+=======
+        redirectPath = Path.getPathWithoutSchemeAndAuthority(redirectPath);
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
         return redirectPath;
     }
 

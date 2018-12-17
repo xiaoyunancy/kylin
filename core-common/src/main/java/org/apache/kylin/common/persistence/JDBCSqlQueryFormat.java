@@ -18,6 +18,10 @@
 
 package org.apache.kylin.common.persistence;
 
+<<<<<<< HEAD
+=======
+import java.util.Locale;
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
 import java.util.Properties;
 
 public class JDBCSqlQueryFormat {
@@ -30,7 +34,11 @@ public class JDBCSqlQueryFormat {
     private String getSqlFromProperties(String key) {
         String sql = sqlQueries.getProperty(key);
         if (sql == null)
+<<<<<<< HEAD
             throw new RuntimeException(String.format("Property '%s' not found", key));
+=======
+            throw new RuntimeException(String.format(Locale.ROOT, "Property '%s' not found", key));
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
         return sql;
     }
 

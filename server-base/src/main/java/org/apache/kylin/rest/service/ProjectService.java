@@ -24,9 +24,18 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+<<<<<<< HEAD
+=======
+import java.util.Set;
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
 
 import java.util.Set;
 import javax.annotation.Nullable;
+<<<<<<< HEAD
+=======
+
+import com.google.common.collect.Sets;
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
 import org.apache.directory.api.util.Strings;
 import org.apache.kylin.metadata.project.ProjectInstance;
 import org.apache.kylin.metadata.realization.RealizationType;
@@ -136,11 +145,17 @@ public class ProjectService extends BasicService {
     @PreAuthorize(Constant.ACCESS_HAS_ROLE_ADMIN)
     public void deleteProject(String projectName, ProjectInstance project) throws IOException {
         Set<String> tables = project.getTables();
+<<<<<<< HEAD
         for (String table : tables) {
             tableService.unloadHiveTable(table, projectName);
+=======
+        for (String table : Sets.newTreeSet(tables)) {
+            tableService.unloadHiveTable(table, projectName);
+            getTableManager().removeTableExt(table, projectName);
+            getTableACLManager().deleteTableACLByTbl(projectName, table);
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
         }
         getProjectManager().dropProject(projectName);
-
         accessService.clean(project, true);
     }
 

@@ -74,7 +74,8 @@ public class TableDesc extends RootPersistentEntity implements ISourceAware {
         if (cut >= 0)
             path = path.substring(cut + 1);
 
-        String table, prj;
+        String table;
+        String prj;
         int dash = path.indexOf("--");
         if (dash >= 0) {
             table = path.substring(0, dash);
@@ -153,9 +154,14 @@ public class TableDesc extends RootPersistentEntity implements ISourceAware {
                 if (existingColumns[i].getName().equalsIgnoreCase(computedColumns[j].getName())) {
                     // if we're adding a computed column twice, it should be allowed without producing duplicates
                     if (!existingColumns[i].isComputedColumn()) {
+<<<<<<< HEAD
                         throw new IllegalArgumentException(String.format(Locale.ROOT,
+=======
+                        String errorMsg = String.format(Locale.ROOT,
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
                                 "There is already a column named %s on table %s, please change your computed column name",
-                                new Object[] { computedColumns[j].getName(), this.getIdentity() }));
+                                computedColumns[j].getName(), this.getIdentity());
+                        throw new IllegalArgumentException(errorMsg);
                     } else {
                         isFreshCC = false;
                     }
@@ -178,7 +184,7 @@ public class TableDesc extends RootPersistentEntity implements ISourceAware {
 
     public ColumnDesc findColumnByName(String name) {
         //ignore the db name and table name if exists
-        int lastIndexOfDot = name.lastIndexOf(".");
+        int lastIndexOfDot = name.lastIndexOf('.');
         if (lastIndexOfDot >= 0) {
             name = name.substring(lastIndexOfDot + 1);
         }
@@ -204,6 +210,7 @@ public class TableDesc extends RootPersistentEntity implements ISourceAware {
      * @deprecated this is for compatible with data model v1;
      * @return
      */
+    @Deprecated
     public String getResourcePathV1() {
         return concatResourcePath(name, null);
     }
@@ -214,6 +221,18 @@ public class TableDesc extends RootPersistentEntity implements ISourceAware {
                     .toUpperCase(Locale.ROOT);
         }
         return identity;
+    }
+
+    public String getIdentityQuoted(String quot) {
+        String dbName = quot + this.getDatabase() + quot;
+        String tableName = quot + this.getName() + quot;
+        return String.format(Locale.ROOT, "%s.%s", dbName, tableName).toUpperCase(Locale.ROOT);
+    }
+
+    public String getFactTableQuoted(String quot) {
+        String database = quot + config.getHiveDatabaseForIntermediateTable() + quot;
+        String table = quot + this.getName() + "_fact" + quot;
+        return database + "." + table;
     }
 
     public boolean isView() {
@@ -305,7 +324,7 @@ public class TableDesc extends RootPersistentEntity implements ISourceAware {
             setDatabase(getDatabase().toUpperCase(Locale.ROOT));
 
         if (columns != null) {
-            Arrays.sort(columns, new Comparator<ColumnDesc>() {
+            Arrays.parallelSort(columns, new Comparator<ColumnDesc>() {
                 @Override
                 public int compare(ColumnDesc col1, ColumnDesc col2) {
                     Integer id1 = Integer.parseInt(col1.getId());

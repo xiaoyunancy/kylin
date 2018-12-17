@@ -18,10 +18,15 @@
 
 package org.apache.kylin.measure;
 
+<<<<<<< HEAD
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+=======
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
 import org.apache.kylin.common.KylinConfig;
 import org.apache.kylin.common.KylinConfigCannotInitException;
 import org.apache.kylin.measure.basic.BasicMeasureType;
@@ -38,8 +43,9 @@ import org.apache.kylin.metadata.model.FunctionDesc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * Factory for MeasureType.

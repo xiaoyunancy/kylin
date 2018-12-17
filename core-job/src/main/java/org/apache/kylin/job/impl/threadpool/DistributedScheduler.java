@@ -36,6 +36,7 @@ import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.kylin.common.KylinConfig;
 import org.apache.kylin.common.lock.DistributedLock;
 import org.apache.kylin.common.util.SetThreadName;
+import org.apache.kylin.common.util.StringUtil;
 import org.apache.kylin.job.Scheduler;
 import org.apache.kylin.job.engine.JobEngineConfig;
 import org.apache.kylin.job.exception.ExecuteException;
@@ -57,8 +58,7 @@ import com.google.common.collect.Maps;
  *
  * to enable the distributed job server, you need to set and update three configs in the kylin.properties:
  *  1. kylin.job.scheduler.default=2
- *  2. kylin.job.lock=org.apache.kylin.storage.hbase.util.ZookeeperJobLock
- *  3. add all the job servers and query servers to the kylin.server.cluster-servers
+ *  2. add all the job servers and query servers to the kylin.server.cluster-servers
  */
 public class DistributedScheduler implements Scheduler<AbstractExecutable>, ConnectionStateListener {
     private static final Logger logger = LoggerFactory.getLogger(DistributedScheduler.class);
@@ -150,7 +150,7 @@ public class DistributedScheduler implements Scheduler<AbstractExecutable>, Conn
 
         @Override
         public void onUnlock(String path, String nodeData) {
-            String[] paths = path.split("/");
+            String[] paths = StringUtil.split(path, "/");
             String jobId = paths[paths.length - 1];
 
             final Output output = executableManager.getOutput(jobId);

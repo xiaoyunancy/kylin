@@ -61,7 +61,7 @@ public class LookupTableHFilesBulkLoadJob extends AbstractHadoopJob {
 
         ExtTableSnapshotInfoManager extTableSnapshotInfoManager = ExtTableSnapshotInfoManager.getInstance(kylinConfig);
         ExtTableSnapshotInfo snapshot = extTableSnapshotInfoManager.getSnapshot(tableName, snapshotID);
-        long srcTableRowCnt = Long.valueOf(job.findExtraInfoBackward(BatchConstants.LOOKUP_EXT_SNAPSHOT_SRC_RECORD_CNT_PFX + tableName, "-1"));
+        long srcTableRowCnt = Long.parseLong(job.findExtraInfoBackward(BatchConstants.LOOKUP_EXT_SNAPSHOT_SRC_RECORD_CNT_PFX + tableName, "-1"));
         logger.info("update table:{} snapshot row count:{}", tableName, srcTableRowCnt);
         snapshot.setRowCnt(srcTableRowCnt);
         snapshot.setLastBuildTime(System.currentTimeMillis());
@@ -85,7 +85,7 @@ public class LookupTableHFilesBulkLoadJob extends AbstractHadoopJob {
         }
 
         if (exitCode != 0) {
-            logger.error("Failed to change the file permissions: " + input);
+            logger.error("Failed to change the file permissions: {}", input);
             throw new IOException("Failed to change the file permissions: " + input);
         }
 

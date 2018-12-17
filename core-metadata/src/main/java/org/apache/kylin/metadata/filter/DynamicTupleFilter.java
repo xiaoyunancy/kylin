@@ -78,4 +78,9 @@ public class DynamicTupleFilter extends TupleFilter {
         this.variableName = BytesUtil.readUTFString(buffer);
     }
 
+    @Override
+    public String toSQL() {
+        return "1=1";
+    }
+
 }

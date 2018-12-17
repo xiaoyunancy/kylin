@@ -85,9 +85,15 @@ public abstract class AbstractInfoExtractor extends AbstractApplication {
     protected void execute(OptionsHelper optionsHelper) throws Exception {
         String exportDest = optionsHelper.getOptionValue(options.getOption("destDir"));
         boolean shouldCompress = optionsHelper.hasOption(OPTION_COMPRESS)
+<<<<<<< HEAD
                 ? Boolean.valueOf(optionsHelper.getOptionValue(OPTION_COMPRESS)) : true;
         boolean isSubmodule = optionsHelper.hasOption(OPTION_SUBMODULE)
                 ? Boolean.valueOf(optionsHelper.getOptionValue(OPTION_SUBMODULE)) : false;
+=======
+                ? Boolean.parseBoolean(optionsHelper.getOptionValue(OPTION_COMPRESS)) : true;
+        boolean isSubmodule = optionsHelper.hasOption(OPTION_SUBMODULE)
+                ? Boolean.parseBoolean(optionsHelper.getOptionValue(OPTION_SUBMODULE)) : false;
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
         packageType = optionsHelper.getOptionValue(OPTION_PACKAGETYPE);
 
         if (packageType == null)
@@ -102,7 +108,11 @@ public abstract class AbstractInfoExtractor extends AbstractApplication {
 
         // create new folder to contain the output
         String packageName = packageType.toLowerCase(Locale.ROOT) + "_"
+<<<<<<< HEAD
                 + new SimpleDateFormat("YYYY_MM_dd_HH_mm_ss", Locale.ROOT).format(new Date());
+=======
+                + new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.ROOT).format(new Date());
+>>>>>>> e8f96bb2534e07f8647215c1e878ec5af19399d0
         if (!isSubmodule && new File(exportDest).exists()) {
             exportDest = exportDest + packageName + "/";
         }

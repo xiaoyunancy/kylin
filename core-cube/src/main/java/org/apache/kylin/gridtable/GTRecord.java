@@ -18,14 +18,13 @@
 
 package org.apache.kylin.gridtable;
 
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.Comparator;
-
+import com.google.common.base.Preconditions;
 import org.apache.kylin.common.util.ByteArray;
 import org.apache.kylin.common.util.ImmutableBitSet;
 
-import com.google.common.base.Preconditions;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.Comparator;
 
 public class GTRecord implements Comparable<GTRecord> {
 

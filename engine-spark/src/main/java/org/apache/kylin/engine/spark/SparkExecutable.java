@@ -195,8 +195,9 @@ public class SparkExecutable extends AbstractExecutable {
     protected ExecuteResult doWork(ExecutableContext context) throws ExecuteException {
         ExecutableManager mgr = getManager();
         Map<String, String> extra = mgr.getOutput(getId()).getExtra();
-        if (extra.containsKey(ExecutableConstants.SPARK_JOB_ID)) {
-            return onResumed(extra.get(ExecutableConstants.SPARK_JOB_ID), mgr);
+        String sparkJobId = extra.get(ExecutableConstants.SPARK_JOB_ID);
+        if (!StringUtils.isEmpty(sparkJobId)) {
+            return onResumed(sparkJobId, mgr);
         } else {
             String cubeName = this.getParam(SparkCubingByLayer.OPTION_CUBE_NAME.getOpt());
             CubeInstance cube = CubeManager.getInstance(context.getConfig()).getCube(cubeName);
